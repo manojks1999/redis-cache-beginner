@@ -125,7 +125,7 @@ def device_data_get():
                 })
         
         device_data = db_session.query(DeviceLocations).filter(DeviceLocations.device_fk_id == id).order_by(DeviceLocations.sts.desc()).first()
-        if not device_data or device_data.count() == 0:
+        if not device_data:
             return jsonify({
                 "success": True,
                 "message": "Device not found"
@@ -217,8 +217,8 @@ def device_data_get_all_location():
         
         device_data = db_session.query(DeviceLocations).filter(
             DeviceLocations.device_fk_id == id,
-            DeviceLocations.sts >= start_time,
-            DeviceLocations.sts <= end_time
+            DeviceLocations.time_stamp >= start_time,
+            DeviceLocations.time_stamp <= end_time
             ).order_by(DeviceLocations.sts.asc())
         if not device_data or device_data.count() == 0:
             return jsonify({
