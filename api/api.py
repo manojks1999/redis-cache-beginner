@@ -13,8 +13,10 @@ from api import redis_cache
 
 try:
     apis_blueprint = Blueprint("apis", __name__, url_prefix="/api")
+    main_blueprint = Blueprint("main_apis", __name__, url_prefix="/")
 except Exception as e:
     apis_blueprint = Blueprint("apis", __name__, url_prefix="/api")
+    main_blueprint = Blueprint("main_apis", __name__, url_prefix="/")
 
 
 def set_cache(key, val):
@@ -41,7 +43,7 @@ def get_cache(key):
         print("Exception in cache", e)
 
 
-@apis_blueprint.route("/", methods=["GET"])
+@main_blueprint.route("/", methods=["GET"])
 def api():
     try:
         return jsonify(
@@ -123,7 +125,7 @@ def device_data_get():
                 })
         
         device_data = db_session.query(DeviceLocations).filter(DeviceLocations.device_fk_id == id).order_by(DeviceLocations.sts.desc()).first()
-        if not device_data:
+        if not device_data or device_data.count() == 0:
             return jsonify({
                 "success": True,
                 "message": "Device not found"
@@ -167,13 +169,14 @@ def device_data_get_location():
                 })
         
         device_data = db_session.query(DeviceLocations).filter(DeviceLocations.device_fk_id == id).order_by(DeviceLocations.sts.asc())
-        if not device_data:
+        if not device_data or device_data.count() == 0:
             return jsonify({
                 "success": True,
                 "message": "Device not found"
             }), 400
         
         count = device_data.count()
+        print(count)
         result_data =[]
         result_data.append({
                 "start": [device_data[0].latitude, device_data[0].longitude]
@@ -217,11 +220,12 @@ def device_data_get_all_location():
             DeviceLocations.sts >= start_time,
             DeviceLocations.sts <= end_time
             ).order_by(DeviceLocations.sts.asc())
-        if not device_data:
+        if not device_data or device_data.count() == 0:
             return jsonify({
                 "success": True,
                 "message": "Device not found"
             }), 400
+        
         count = device_data.count()
         
         result_data =[{
