@@ -71,8 +71,9 @@ def create_app(environment):
         # pass application context
         with app.app_context():
             # import blueprints
-            from api.api import apis_blueprint
+            from api.api import apis_blueprint, main_blueprint
             app.register_blueprint(apis_blueprint)
+            app.register_blueprint(main_blueprint)
             return app
     except Exception as e:
         print("error", e)
